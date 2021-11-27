@@ -122,7 +122,7 @@ def ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr):
     
     db.child("humidity&temp").child("2-humidity,temp").push(data)
   
-
+#was calling the photoresistor thru another file originally, but was able to move it here 
 #def photoresistor(diff):
     GPIO.setup(resistorPin, GPIO.OUT)
     GPIO.output(resistorPin, GPIO.LOW)
