@@ -61,6 +61,41 @@ twitter = Twython(
 
 message = "Hello World!"
 
+def avg_distance():
+    '''record distance measurement 10 times
+       return average distance'''
+    total_dist = 0
+    for _ in range(10):    
+        while GPIO.input(PIN_ECHO)==0:
+            pulse_start_time = time.time()
+        while GPIO.input(PIN_ECHO)==1:
+            pulse_end_time = time.time()
+
+        pulse_duration = pulse_end_time - pulse_start_time
+        distance = round(pulse_duration * 17150, 2)
+        total_dist += distance
+
+    avg_dist = total_dist/10
+    print ("Distance:",distance,"cm")
+    return avg_dist
+
+
+def temphumidity():
+    total_humidity, total_ambient_temp = 0,0
+
+    for _ in range(10):
+        time.sleep(1)
+        humidity = bme280.humidity
+        ambient_temp = (bme280.temperature*1.8) + 32
+        total_humidity += humidity
+        total_ambient_temp += ambient_temp
+
+    avg_humidity = total_humidity/10
+    avg_ambient_temp = total_ambient_temp/10
+
+    return avg_humidity, avg_ambient_temp
+
+
 def ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr):
 
     print ("Waiting for sensor to settle")
@@ -71,15 +106,7 @@ def ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr):
     time.sleep(0.00001)
     GPIO.output(PIN_TRIGGER, GPIO.LOW)
 
-    while GPIO.input(PIN_ECHO)==0:
-        pulse_start_time = time.time()
-    while GPIO.input(PIN_ECHO)==1:
-        pulse_end_time = time.time()
-
-    pulse_duration = pulse_end_time - pulse_start_time
-    distance = round(pulse_duration * 17150, 2)
-    print ("Distance:",distance,"cm")
-    
+    distance = avg_distance()    
     if distance >= 30:
         print("Water is low!")
         message = "Water is low: " + str(distance) +  '#' + str(ctr)
@@ -92,11 +119,8 @@ def ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr):
     
     db.child("distance").child("3-distance").push(data)
 
-#def temphumidity(humidity, ambient_temp, ctr):
-    time.sleep(1)
-    humidity = bme280.humidity
-    ambient_temp = (bme280.temperature*1.8) + 32
-    
+    humidity, ambient_temp = temphumidity()
+
     if ambient_temp > 45:
         print("ambient temp is too high, at: ", ambient_temp)
         message = "ambient temp is too high: F" + str(ambient_temp) + ' #' + str(ctr)
@@ -141,22 +165,22 @@ def ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr):
         "light": diff*1000
     }
     db.child("light").child("4-light").push(data)
+try:
+    while True:
+        ctr = (ctr + 1)%10 # modulo operator keeps ctr in range 0-9
 
-while True:
-    ctr = ctr + 1 
-    if(ctr >=10):
-        ctr = 0
-
-    ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr)
-    '''
-    temphumidity(humidity, ambient_temp, ctr)
-    photoresistor(diff)
-    '''
-    #exec(open('photores.py').read())
+        ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr)
+        '''
+        temphumidity(humidity, ambient_temp, ctr)
+        photoresistor(diff)
+        '''
+        #exec(open('photores.py').read())
 
 
-    db.child("Here we go!").child("init").set(string)
-    time.sleep(5)
-
-GPIO.cleanup()
+        db.child("Here we go!").child("init").set(string)
+        time.sleep(5)
+except KeyboardInterrupt:
+    print("cleaning up GPIO...")
+    GPIO.cleanup()
+    print('DONE!')
 
