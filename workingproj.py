@@ -165,20 +165,22 @@ def ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr):
         "light": diff*1000
     }
     db.child("light").child("4-light").push(data)
+try:
+    while True:
+        ctr = (ctr + 1)%10 # modulo operator keeps ctr in range 0-9
 
-while True:
-    ctr = (ctr + 1)%10 # modulo operator keeps ctr in range 0-9
-
-    ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr)
-    '''
-    temphumidity(humidity, ambient_temp, ctr)
-    photoresistor(diff)
-    '''
-    #exec(open('photores.py').read())
+        ultrasonic(distance, pulse_duration, humidity, ambient_temp, diff, ctr)
+        '''
+        temphumidity(humidity, ambient_temp, ctr)
+        photoresistor(diff)
+        '''
+        #exec(open('photores.py').read())
 
 
-    db.child("Here we go!").child("init").set(string)
-    time.sleep(5)
-
-GPIO.cleanup()
+        db.child("Here we go!").child("init").set(string)
+        time.sleep(5)
+except KeyboardInterrupt:
+    print("cleaning up GPIO...")
+    GPIO.cleanup()
+    print('DONE!')
 
