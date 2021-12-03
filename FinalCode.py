@@ -26,11 +26,11 @@ ambient_temp = 0
 diff = 0
 ctr = 0
 
-config = {
-  "apiKey": "twOI7G4dMO56MZkRfAne0Sj59ETe9j0awFEnCkYl",
-  "authDomain": "smartvase-5f009",
-  "databaseURL": "https://smartvase-5f009-default-rtdb.firebaseio.com/",
-  "storageBucket": "smartvase-5f009.appspot.com"
+from config import {
+ apiKey,
+ authDomain,
+ databaseURL,
+ storageBucket
 }
 
 data = {
