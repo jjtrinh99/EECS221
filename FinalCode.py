@@ -27,10 +27,10 @@ diff = 0
 ctr = 0
 
 from config import {
- apiKey,
- authDomain,
- databaseURL,
- storageBucket
+    apiKey,
+    authDomain,
+    databaseURL,
+    storageBucket
 }
 
 data = {
